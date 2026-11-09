@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700&family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1440px; height: 900px; overflow: hidden; }
+  body { display: grid; grid-template-columns: 520px 1fr; font-family: "Noto Sans Thai", system-ui, sans-serif; color: #262A33; }
+  .cover { background: #0F4C5C; color: #E7F0EE; padding: 64px 56px; display: flex; flex-direction: column; justify-content: space-between; }
+  .cover .name { font-size: 40px; font-weight: 700; line-height: 1.15; }
+  .cover .no { font-family: "DotGothic16", monospace; font-size: 18px; letter-spacing: .12em; opacity: .8; }
+  .page { background: #F1F4F2; background-image: repeating-linear-gradient(#F1F4F2 0 39px, #C9D6D2 39px 40px); padding: 80px 120px; }
+  .sheet { max-width: 480px; background: #F1F4F2; padding: 8px 0; }
+  h1 { font-size: 34px; font-weight: 700; }
+  .sub { font-size: 15px; color: #4A5260; margin-top: 6px; }
+  form { margin-top: 32px; display: grid; gap: 18px; }
+  label { display: grid; gap: 6px; font-size: 14px; font-weight: 500; }
+  input { height: 46px; border: 1px solid #8E9AA0; border-radius: 4px; background: #fff; padding: 0 14px; font: inherit; font-size: 16px; }
+  button { height: 50px; border-radius: 4px; background: #0F4C5C; color: #fff; border: 0; font: inherit; font-size: 17px; font-weight: 700; }
+  .alt { background: #fff; color: #262A33; border: 1px solid #8E9AA0; font-weight: 500; font-size: 15px; }
+  a { color: #0F4C5C; }
+  .row { display: flex; justify-content: flex-end; font-size: 14px; }
+  .printed { margin-top: 36px; font-family: "DotGothic16", monospace; font-size: 15px; line-height: 40px; color: #3A4250; }
+  .printed div { display: grid; grid-template-columns: 120px 1fr 120px; }
+</style>
+</head>
+<body>
+  <aside class="cover">
+    <div class="no">ACCOUNT · USD</div>
+    <div class="name">Stock<br>Portfolio</div>
+    <div style="font-size:18px;opacity:.8">บันทึกซื้อ · ขาย ด้วยตัวคุณเอง</div>
+  </aside>
+  <section class="page">
+    <div class="sheet">
+      <h1>เข้าสู่ระบบ</h1>
+      <p class="sub">เปิดสมุดบันทึกการลงทุนของคุณ</p>
+      <form>
+        <label>อีเมล<input value="somchai@example.com"></label>
+        <label>รหัสผ่าน<input type="password" value="password12"></label>
+        <div class="row"><a href="#">ลืมรหัสผ่าน?</a></div>
+        <button>เข้าสู่ระบบ</button>
+        <button class="alt">เข้าสู่ระบบด้วย Google</button>
+      </form>
+      <p class="sub" style="margin-top:20px">ยังไม่มีบัญชี? <a href="#">สมัครสมาชิก</a></p>
+      <div class="printed">
+        <div><span>07/11/26</span><span>LOGIN</span><span>—</span></div>
+      </div>
+    </div>
+  </section>
+</body>
+</html>

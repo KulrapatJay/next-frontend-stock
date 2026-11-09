@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@500;700&family=Noto+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1440px; height: 900px; overflow: hidden; }
+  body { background: #E4E8DF; color: #13261D; font-family: "Noto Sans Thai", system-ui, sans-serif; display: grid; place-items: center; }
+  .doc { width: 560px; background: #EDF0E8; border: 1px solid #2E5E46; outline: 1px solid #2E5E46; outline-offset: 6px; padding: 44px 56px 40px; position: relative; }
+  .micro { position: absolute; inset: -18px; border: 1px solid #8FA89A; pointer-events: none; }
+  .micro span { position: absolute; top: -9px; left: 24px; background: #E4E8DF; padding: 0 8px; font-size: 12px; letter-spacing: .3em; color: #2E5E46; }
+  .seal { display: flex; align-items: center; gap: 20px; padding-bottom: 24px; border-bottom: 1px solid #2E5E46; }
+  .seal svg { width: 92px; height: 92px; flex: none; }
+  .serial { font-variant-numeric: tabular-nums; font-size: 12px; letter-spacing: .18em; color: #8A5A12; }
+  h1 { font-family: "Noto Serif Thai", serif; font-weight: 700; font-size: 34px; line-height: 1.2; }
+  .sub { font-size: 15px; color: #2E5E46; margin-top: 4px; }
+  form { margin-top: 28px; display: grid; gap: 18px; }
+  label { display: grid; gap: 6px; font-size: 14px; font-weight: 500; }
+  input { height: 46px; border: 1px solid #13261D; background: #F7F9F4; padding: 0 14px; font: inherit; font-size: 16px; }
+  .row { display: flex; justify-content: space-between; font-size: 14px; }
+  a { color: #2E5E46; text-decoration: underline; text-underline-offset: 3px; }
+  button { height: 50px; background: #13261D; color: #EDF0E8; border: 0; font: inherit; font-size: 17px; font-weight: 600; letter-spacing: .02em; }
+  .alt { height: 46px; background: transparent; color: #13261D; border: 1px solid #13261D; font-size: 15px; font-weight: 500; }
+  .or { display: flex; align-items: center; gap: 12px; font-size: 12px; color: #2E5E46; }
+  .or::before, .or::after { content: ""; flex: 1; border-top: 1px solid #8FA89A; }
+  .foot { margin-top: 24px; padding-top: 16px; border-top: 1px solid #8FA89A; font-size: 14px; text-align: center; }
+</style>
+</head>
+<body>
+  <main class="doc">
+    <div class="micro"><span>STOCK PORTFOLIO · USD · STOCK PORTFOLIO · USD</span></div>
+    <div class="seal">
+      <svg viewBox="-50 -50 100 100" fill="none" stroke="#2E5E46" stroke-width=".35">
+        <g>
+          <ellipse rx="44" ry="14"/><ellipse rx="44" ry="14" transform="rotate(15)"/><ellipse rx="44" ry="14" transform="rotate(30)"/>
+          <ellipse rx="44" ry="14" transform="rotate(45)"/><ellipse rx="44" ry="14" transform="rotate(60)"/><ellipse rx="44" ry="14" transform="rotate(75)"/>
+          <ellipse rx="44" ry="14" transform="rotate(90)"/><ellipse rx="44" ry="14" transform="rotate(105)"/><ellipse rx="44" ry="14" transform="rotate(120)"/>
+          <ellipse rx="44" ry="14" transform="rotate(135)"/><ellipse rx="44" ry="14" transform="rotate(150)"/><ellipse rx="44" ry="14" transform="rotate(165)"/>
+        </g>
+        <g stroke="#8A5A12">
+          <ellipse rx="26" ry="9"/><ellipse rx="26" ry="9" transform="rotate(30)"/><ellipse rx="26" ry="9" transform="rotate(60)"/>
+          <ellipse rx="26" ry="9" transform="rotate(90)"/><ellipse rx="26" ry="9" transform="rotate(120)"/><ellipse rx="26" ry="9" transform="rotate(150)"/>
+        </g>
+        <circle r="47" stroke="#13261D" stroke-width=".6"/><circle r="8" fill="#13261D" stroke="none"/>
+      </svg>
+      <div>
+        <div class="serial">Nº 000 000 · USD</div>
+        <h1>เข้าสู่ระบบ</h1>
+        <p class="sub">บันทึกการซื้อขายหุ้นของคุณ ทุกยอดตรวจย้อนได้</p>
+      </div>
+    </div>
+    <form>
+      <label>อีเมล<input value="somchai@example.com"></label>
+      <label>รหัสผ่าน<input type="password" value="password12"></label>
+      <div class="row"><span></span><a href="#">ลืมรหัสผ่าน?</a></div>
+      <button>เข้าสู่ระบบ</button>
+      <div class="or">หรือ</div>
+      <button class="alt">เข้าสู่ระบบด้วย Google</button>
+    </form>
+    <p class="foot">ยังไม่มีบัญชี? <a href="#">สมัครสมาชิก</a></p>
+  </main>
+</body>
+</html>

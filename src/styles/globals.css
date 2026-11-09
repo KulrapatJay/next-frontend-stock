@@ -1,26 +1,107 @@
 @import "tailwindcss";
 
+/* Passbook theme */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --cover: #0f4c5c;
+  --cover-ink: #e7f0ee;
+  --cover-muted: #b7cfca;
+  --page: #f1f4f2;
+  --rule: #d3ddda;
+  --ink: #262a33;
+  --ink-muted: #4a5260;
+  --field: #ffffff;
+  --field-border: #7d8a90;
+  --accent: #0f4c5c;
+  --accent-hover: #0b3b48;
+  --accent-ink: #ffffff;
+  --danger: #b42318;
+  --danger-bg: #fdecea;
+  --success: #116149;
+  --selection: #bfe0e6;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --cover: #0a3440;
+    --cover-ink: #e7f0ee;
+    --cover-muted: #a7c2bd;
+    --page: #111819;
+    --rule: #1f2a2c;
+    --ink: #e4eae8;
+    --ink-muted: #a6b2b5;
+    --field: #172123;
+    --field-border: #5f6f74;
+    --accent: #5fb3c4;
+    --accent-hover: #7cc4d2;
+    --accent-ink: #0a2128;
+    --danger: #ff8a7a;
+    --danger-bg: #2c1513;
+    --success: #6fd3ae;
+    --selection: #1f4f5a;
   }
 }
 
+@theme inline {
+  --color-cover: var(--cover);
+  --color-cover-ink: var(--cover-ink);
+  --color-cover-muted: var(--cover-muted);
+  --color-page: var(--page);
+  --color-rule: var(--rule);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-field: var(--field);
+  --color-field-border: var(--field-border);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-ink: var(--accent-ink);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-success: var(--success);
+  --font-sans: var(--font-sans-thai), system-ui, sans-serif;
+  --font-dot: var(--font-dot), ui-monospace, monospace;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  caret-color: var(--accent);
+}
+
+::selection {
+  background: var(--selection);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+a {
+  text-underline-offset: 3px;
+}
+
+.ruled {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 39px,
+    var(--rule) 39px 40px
+  );
+}
+
+/* Passbook print */
+@keyframes print-line {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+.print-line {
+  animation: print-line var(--print-duration, 900ms) steps(var(--print-steps, 30)) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .print-line {
+    animation: none;
+  }
 }
