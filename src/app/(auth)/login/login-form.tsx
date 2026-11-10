@@ -3,14 +3,17 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { Field, PasswordField } from "@/components/auth/Field";
-import { GoogleButton } from "@/components/auth/GoogleButton";
-import { Alert, AuthHeading, Button, PrintedEntries, printEntry, type PrintEntry } from "@/components/auth/ui";
-import { VerifyEmailStep } from "@/components/auth/VerifyEmailStep";
+import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
+import { Field, PasswordField } from "@/components/ui/Field";
 import { login, requestEmailVerification } from "@/features/auth/api";
+import { AuthHeading } from "@/features/auth/components/AuthHeading";
+import { GoogleButton } from "@/features/auth/components/GoogleButton";
+import { PrintedEntries, printEntry, type PrintEntry } from "@/features/auth/components/PrintedEntries";
+import { VerifyEmailStep } from "@/features/auth/components/VerifyEmailStep";
 import { ApiError } from "@/lib/api";
 import { errorMessage } from "@/lib/errors";
-import { isEmail } from "@/lib/password";
+import { isEmail } from "@/lib/validation";
 
 // Login
 function safeRedirect(): string {
@@ -47,6 +50,10 @@ export function LoginForm({ notice: urlNotice, print }: { notice: ReactNode; pri
     setUnverified(false);
     try {
       await login(email.trim(), password);
+      // Next keeps this page cached after navigating away: do not leave credentials behind
+      setEmail("");
+      setPassword("");
+      setPending(false);
       router.replace(safeRedirect());
     } catch (err) {
       if (err instanceof ApiError && err.code === "email_not_verified") setUnverified(true);
@@ -152,7 +159,11 @@ export function LoginForm({ notice: urlNotice, print }: { notice: ReactNode; pri
 
 const NOTICES: Record<string, { tone: "error" | "success"; text: string; print?: [string, string] }> = {
   verified: { tone: "success", text: "ยืนยันอีเมลแล้ว เข้าสู่ระบบได้เลย", print: ["VRF", "EMAIL VERIFIED"] },
-  reset: { tone: "success", text: "ตั้งรหัสผ่านใหม่แล้ว เข้าสู่ระบบด้วยรหัสใหม่ได้เลย", print: ["RST", "PASSWORD CHANGED"] },
+  reset: {
+    tone: "success",
+    text: "ตั้งรหัสผ่านใหม่แล้ว เข้าสู่ระบบด้วยรหัสใหม่ได้เลย",
+    print: ["RST", "PASSWORD CHANGED"],
+  },
   failed: { tone: "error", text: "เข้าสู่ระบบด้วย Google ไม่สำเร็จ อาจยกเลิกไปหรือเกิน 10 นาที ลองใหม่อีกครั้ง" },
   link_required: {
     tone: "error",

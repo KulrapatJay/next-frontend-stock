@@ -24,11 +24,5 @@ export function passwordProblems(password: string, email: string): string[] {
 
 export function passwordError(password: string, email: string): string {
   const containsEmail = PASSWORD_RULES.every((rule) => rule.test(password));
-  return containsEmail && email.trim()
-    ? "ต้องไม่มีอีเมลของคุณอยู่ในรหัสผ่าน"
-    : "รหัสผ่านยังไม่ครบเงื่อนไขด้านล่าง";
-}
-
-export function isEmail(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+  return containsEmail && email.trim() ? "ต้องไม่มีอีเมลของคุณอยู่ในรหัสผ่าน" : "รหัสผ่านยังไม่ครบเงื่อนไขด้านล่าง";
 }

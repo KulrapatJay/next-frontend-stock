@@ -83,17 +83,17 @@ a {
 }
 
 .ruled {
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0 39px,
-    var(--rule) 39px 40px
-  );
+  background-image: repeating-linear-gradient(to bottom, transparent 0 39px, var(--rule) 39px 40px);
 }
 
 /* Passbook print */
 @keyframes print-line {
-  from { clip-path: inset(0 100% 0 0); }
-  to { clip-path: inset(0 0 0 0); }
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 .print-line {

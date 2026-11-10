@@ -3,23 +3,20 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { Field, PasswordField } from "@/components/auth/Field";
-import { OtpField } from "@/components/auth/OtpField";
-import {
-  Alert,
-  AuthHeading,
-  Button,
-  PasswordRules,
-  PrintedEntries,
-  printEntry,
-  useCountdown,
-  type PrintEntry,
-} from "@/components/auth/ui";
-import { confirmPasswordReset, requestPasswordReset } from "@/features/auth/api";
+import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
+import { Field, PasswordField } from "@/components/ui/Field";
+import { confirmPasswordReset, requestPasswordReset, verifyPasswordReset } from "@/features/auth/api";
+import { AuthHeading } from "@/features/auth/components/AuthHeading";
+import { OtpField } from "@/features/auth/components/OtpField";
+import { PasswordRules } from "@/features/auth/components/PasswordRules";
+import { PrintedEntries, printEntry, type PrintEntry } from "@/features/auth/components/PrintedEntries";
+import { passwordError, passwordProblems } from "@/features/auth/password";
+import { useCountdown } from "@/hooks/useCountdown";
 import { ApiError } from "@/lib/api";
 import { OTP_RESEND_SECONDS } from "@/lib/constants";
 import { errorMessage } from "@/lib/errors";
-import { isEmail, passwordError, passwordProblems } from "@/lib/password";
+import { isEmail } from "@/lib/validation";
 
 // Forgot password
 type Errors = { email?: string; otp?: string; password?: string; confirm?: string };
@@ -32,6 +29,7 @@ export function ForgotPasswordForm() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [challengeId, setChallengeId] = useState("");
+  const [resetToken, setResetToken] = useState("");
   const [errors, setErrors] = useState<Errors>({});
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -44,8 +42,12 @@ export function ForgotPasswordForm() {
     try {
       const res = await requestPasswordReset(email.trim());
       setChallengeId(res.challenge_id);
+      setResetToken("");
       setCooldown(OTP_RESEND_SECONDS);
-      setEntries((list) => [...list, printEntry("OTP", `RESET CODE SENT  #${res.challenge_id.slice(0, 8).toUpperCase()}`)]);
+      setEntries((list) => [
+        ...list,
+        printEntry("OTP", `RESET CODE SENT  #${res.challenge_id.slice(0, 8).toUpperCase()}`),
+      ]);
       return true;
     } catch (err) {
       setError(errorMessage(err));
@@ -75,16 +77,25 @@ export function ForgotPasswordForm() {
     setResending(false);
   }
 
-  function submitOtp(e: FormEvent) {
+  async function submitOtp(e: FormEvent) {
     e.preventDefault();
     if (otp.length !== 6) {
       setErrors({ otp: "กรอกรหัสให้ครบ 6 หลัก" });
       return;
     }
     setErrors({});
+    setPending(true);
     setError(null);
     setNotice(null);
-    setStep("password");
+    try {
+      const res = await verifyPasswordReset(challengeId, otp);
+      setResetToken(res.reset_token);
+      setOtp("");
+      setStep("password");
+    } catch (err) {
+      setError(errorMessage(err));
+    }
+    setPending(false);
   }
 
   async function submitPassword(e: FormEvent) {
@@ -101,15 +112,19 @@ export function ForgotPasswordForm() {
     setError(null);
     setNotice(null);
     try {
-      await confirmPasswordReset(challengeId, otp, password);
+      await confirmPasswordReset(resetToken, password);
       router.push("/login?reset=1");
     } catch (err) {
-      // wrong code: back to the OTP step
+      // token expired, used or replaced: the code is spent, so ask for a new one
       if (err instanceof ApiError && err.code === "invalid_reset") {
-        setOtp("");
-        setStep("otp");
+        setResetToken("");
+        setPassword("");
+        setConfirm("");
+        setStep("email");
+        setError("หมดเวลาหรือยืนยันรหัสไม่สำเร็จ กรุณาขอรหัสใหม่แล้วทำอีกครั้ง");
+      } else {
+        setError(errorMessage(err));
       }
-      setError(errorMessage(err));
       setPending(false);
     }
   }
@@ -158,7 +173,9 @@ export function ForgotPasswordForm() {
           {notice && <Alert tone="success">{notice}</Alert>}
           <form onSubmit={submitOtp} noValidate className="grid gap-5">
             <OtpField label="รหัสจากอีเมล" value={otp} onChange={setOtp} error={errors.otp} autoFocus />
-            <Button type="submit">ถัดไป</Button>
+            <Button type="submit" pending={pending} pendingLabel="กำลังตรวจรหัส…">
+              ถัดไป
+            </Button>
           </form>
         </div>
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-sm">
@@ -181,7 +198,9 @@ export function ForgotPasswordForm() {
 
   return (
     <>
-      <AuthHeading title="ตั้งรหัสผ่านใหม่">ตั้งรหัสผ่านใหม่สำหรับ <strong className="font-semibold text-ink">{email.trim()}</strong></AuthHeading>
+      <AuthHeading title="ตั้งรหัสผ่านใหม่">
+        ตั้งรหัสผ่านใหม่สำหรับ <strong className="font-semibold text-ink">{email.trim()}</strong>
+      </AuthHeading>
       <div className="grid gap-5">
         {error && <Alert>{error}</Alert>}
         <form onSubmit={submitPassword} noValidate className="grid gap-5">
@@ -210,11 +229,6 @@ export function ForgotPasswordForm() {
             ตั้งรหัสผ่านใหม่
           </Button>
         </form>
-      </div>
-      <div className="mt-6 text-sm">
-        <button type="button" onClick={() => setStep("otp")} className="text-ink-muted underline hover:text-ink">
-          กลับไปแก้รหัสยืนยัน
-        </button>
       </div>
       <PrintedEntries entries={entries} />
     </>

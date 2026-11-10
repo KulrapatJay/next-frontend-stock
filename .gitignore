@@ -40,3 +40,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# agent tooling installed per machine
+/.claude/settings.local.json
+/.claude/skills/impeccable/
+/.agents/skills/impeccable/

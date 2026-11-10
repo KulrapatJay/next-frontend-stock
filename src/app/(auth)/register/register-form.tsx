@@ -3,12 +3,17 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { Field, PasswordField } from "@/components/auth/Field";
-import { Alert, AuthHeading, Button, PasswordRules, PrintedEntries, printEntry, type PrintEntry } from "@/components/auth/ui";
-import { VerifyEmailStep } from "@/components/auth/VerifyEmailStep";
+import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
+import { Field, PasswordField } from "@/components/ui/Field";
 import { register } from "@/features/auth/api";
+import { AuthHeading } from "@/features/auth/components/AuthHeading";
+import { PasswordRules } from "@/features/auth/components/PasswordRules";
+import { PrintedEntries, printEntry, type PrintEntry } from "@/features/auth/components/PrintedEntries";
+import { VerifyEmailStep } from "@/features/auth/components/VerifyEmailStep";
+import { passwordError, passwordProblems } from "@/features/auth/password";
 import { errorMessage } from "@/lib/errors";
-import { isEmail, passwordError, passwordProblems } from "@/lib/password";
+import { isEmail } from "@/lib/validation";
 
 // Register
 type Errors = { email?: string; password?: string; confirm?: string };
@@ -57,7 +62,9 @@ export function RegisterForm() {
           email={email.trim()}
           challengeId={challengeId}
           onBack={() => setStep("form")}
-          onResent={(id) => setEntries((list) => [...list, printEntry("OTP", `RESENT  #${id.slice(0, 8).toUpperCase()}`)])}
+          onResent={(id) =>
+            setEntries((list) => [...list, printEntry("OTP", `RESENT  #${id.slice(0, 8).toUpperCase()}`)])
+          }
           onVerified={() => router.push("/login?verified=1")}
         />
         <PrintedEntries entries={entries} />
@@ -67,7 +74,9 @@ export function RegisterForm() {
 
   return (
     <>
-      <AuthHeading title="สมัครสมาชิก">ขั้นที่ 1 จาก 2 · ตั้งอีเมลและรหัสผ่าน แล้วยืนยันอีเมลด้วยรหัส 6 หลัก</AuthHeading>
+      <AuthHeading title="สมัครสมาชิก">
+        ขั้นที่ 1 จาก 2 · ตั้งอีเมลและรหัสผ่าน แล้วยืนยันอีเมลด้วยรหัส 6 หลัก
+      </AuthHeading>
       <div className="grid gap-5">
         {error && <Alert>{error}</Alert>}
         <form onSubmit={submit} noValidate className="grid gap-5">

@@ -1,5 +1,5 @@
 import { api, resetCsrfToken } from "@/lib/api";
-import type { AuthConfig, OtpAccepted, SessionResponse, User } from "@/types";
+import type { AuthConfig, OtpAccepted, ResetToken, SessionResponse, User } from "@/types";
 
 // Auth endpoints (/api/v1/auth/*)
 export function getAuthConfig() {
@@ -40,10 +40,17 @@ export function requestPasswordReset(email: string) {
   return api<OtpAccepted>("/auth/password-reset/request", { method: "POST", body: { email } });
 }
 
-export function confirmPasswordReset(challengeId: string, otp: string, newPassword: string) {
+export function verifyPasswordReset(challengeId: string, otp: string) {
+  return api<ResetToken>("/auth/password-reset/verify", {
+    method: "POST",
+    body: { challenge_id: challengeId, otp },
+  });
+}
+
+export function confirmPasswordReset(resetToken: string, newPassword: string) {
   return api<void>("/auth/password-reset/confirm", {
     method: "POST",
-    body: { challenge_id: challengeId, otp, new_password: newPassword },
+    body: { reset_token: resetToken, new_password: newPassword },
   });
 }
 

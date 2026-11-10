@@ -1,11 +1,14 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
 import { confirmEmailVerification, requestEmailVerification } from "@/features/auth/api";
 import { OTP_RESEND_SECONDS } from "@/lib/constants";
+import { useCountdown } from "@/hooks/useCountdown";
 import { errorMessage } from "@/lib/errors";
+import { AuthHeading } from "./AuthHeading";
 import { OtpField } from "./OtpField";
-import { Alert, AuthHeading, Button, useCountdown } from "./ui";
 
 // Email verification (OTP)
 type Props = {
@@ -63,8 +66,8 @@ export function VerifyEmailStep({ email, challengeId: initialChallenge, onVerifi
   return (
     <>
       <AuthHeading title="ยืนยันอีเมล">
-        ถ้าอีเมลนี้รับข้อความได้ เราได้ส่งรหัส 6 หลักไปที่ <strong className="font-semibold text-ink">{email}</strong> แล้ว
-        รหัสใช้ได้ 10 นาที
+        ถ้าอีเมลนี้รับข้อความได้ เราได้ส่งรหัส 6 หลักไปที่ <strong className="font-semibold text-ink">{email}</strong>{" "}
+        แล้ว รหัสใช้ได้ 10 นาที
       </AuthHeading>
       <form onSubmit={submit} noValidate className="grid gap-5">
         <OtpField label="รหัสยืนยัน" value={otp} onChange={setOtp} error={error} autoFocus />

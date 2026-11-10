@@ -1,31 +1,11 @@
-// API types (from Go-Backend-Stock docs/api/swagger.json)
-export type ApiErrorBody = {
-  error: {
-    code: string;
-    message: string;
-    request_id: string;
-    details?: string[];
-  };
-};
+import type { components } from "./api.gen";
 
-export type User = {
-  id: string;
-  email: string;
-  email_verified: boolean;
-  created_at: string;
-};
+// API types (aliases of the generated schemas)
+type Schemas = components["schemas"];
 
-export type SessionResponse = {
-  expires_at: string;
-  user: User;
-};
-
-export type OtpAccepted = {
-  challenge_id: string;
-  expires_in: number;
-  message: string;
-};
-
-export type AuthConfig = {
-  google_enabled: boolean;
-};
+export type ApiErrorBody = Schemas["http.ErrorResponse"];
+export type User = Schemas["http.UserResponse"];
+export type SessionResponse = Schemas["http.SessionResponse"];
+export type OtpAccepted = Schemas["http.OTPAcceptedResponse"];
+export type AuthConfig = Schemas["http.AuthConfigResponse"];
+export type ResetToken = Schemas["http.ResetTokenResponse"];

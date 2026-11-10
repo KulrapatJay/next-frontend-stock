@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# next-frontend-stock
 
-## Getting Started
+Frontend (Next.js 16, React 19, TypeScript, Tailwind CSS v4) ของเว็บติดตามพอร์ตหุ้นสหรัฐฯ
+ข้อมูลและ business logic ทั้งหมดอยู่ที่ Go API ใน [`../Go-Backend-Stock`](../Go-Backend-Stock)
 
-First, run the development server:
+## เริ่มพัฒนา
+
+ต้องเปิด backend ก่อน เพราะทุกหน้าที่ต้อง login เรียก `/api/v1/auth/me`
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# 1. backend (ดูรายละเอียดใน README ของ Go-Backend-Stock)
+cd ../Go-Backend-Stock
+cp .env.example .env      # แล้วแก้ PUBLIC_ORIGIN=http://localhost:3000
+docker compose up --build
+make demo-data            # บัญชีเดโม (อีเมล/รหัสผ่านอยู่ใน README ของ backend)
+
+# 2. frontend
+cd ../next-frontend-stock
+cp .env.example .env.local
+npm install
+npm run dev               # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`PUBLIC_ORIGIN` ของ backend ต้องตรงกับ origin ของเว็บทุกตัวอักษร ไม่เช่นนั้นทุก POST/PUT/DELETE จะได้ `403 csrf_failed`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| URL                         | คืออะไร                            |
+| --------------------------- | ---------------------------------- |
+| http://localhost:3000       | เว็บ                               |
+| http://localhost:3000/docs/ | Swagger UI ของ Go API (ผ่าน proxy) |
+| http://localhost:8025       | Mailpit สำหรับอ่านรหัส OTP ใน dev  |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment
 
-## Learn More
+| ตัวแปร        | ค่าเริ่มต้น             | ใช้ทำอะไร                                                                    |
+| ------------- | ----------------------- | ---------------------------------------------------------------------------- |
+| `BACKEND_URL` | `http://localhost:8080` | ที่อยู่ของ Go API ใช้ฝั่ง server ใน `rewrites` ของ `next.config.ts` เท่านั้น |
 
-To learn more about Next.js, take a look at the following resources:
+browser เรียก API ผ่าน origin เดียวกับหน้าเว็บเสมอ (`/api/v1/*`, `/docs/*`, `/swagger.json`, `/swagger.yaml`)
+backend ไม่เปิด CORS จึงห้ามให้ browser ยิงไปที่ `BACKEND_URL` โดยตรง
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## คำสั่ง
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run dev          # dev server
+npm run build        # production build
+npm run start        # รัน build
+npm run lint         # eslint
+npm run typecheck    # generate route types แล้วรัน tsc
+npm run test         # vitest (ไฟล์ *.test.ts วางคู่กับ source)
+npm run format       # prettier --write
+npm run gen:api      # generate src/types/api.gen.ts จาก swagger.json ของ backend
+npm run check        # typecheck + lint + format:check + test + build
+```
 
-## Deploy on Vercel
+## โครงสร้าง
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```text
+src/
+  app/            routes: (auth) = login, register, forgot-password; (protected) = หน้าที่ต้อง login
+  components/ui/      UI พื้นฐานที่ใช้ได้ทุก feature (Button, Alert, Field)
+  components/layout/  โครงหน้าหลัง login (AppShell, Navbar, Sidebar)
+  features/<domain>/  โค้ดของแต่ละโดเมน: api.ts, components/, กติกาเฉพาะโดเมน
+  hooks/              React hooks ที่ใช้ร่วมกัน
+  lib/                API client (CSRF, error), ข้อความ error, validation, ค่าคงที่
+  types/          type ของ API
+  proxy.ts        route guard (ดูแค่ว่ามี session cookie หรือไม่)
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## เอกสาร
+
+- ข้อตกลงกับ backend: [`../Go-Backend-Stock/docs/frontend-handoff.md`](../Go-Backend-Stock/docs/frontend-handoff.md)
+- แหล่งความจริงของ API: [`../Go-Backend-Stock/docs/api/swagger.json`](../Go-Backend-Stock/docs/api/swagger.json)
+- ข้อกำหนดสำหรับ agent: [`CLAUDE.md`](CLAUDE.md), [`AGENTS.md`](AGENTS.md)
