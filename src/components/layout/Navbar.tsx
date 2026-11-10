@@ -7,9 +7,16 @@ import { logout } from "@/features/auth/api";
 import { LogoutIcon, MenuIcon } from "./icons";
 
 // Top bar: page title, account, logout
-type Props = { title: string; email?: string; menuOpen: boolean; onMenu: () => void };
+type Props = {
+  title: string;
+  email?: string;
+  menuOpen: boolean;
+  onMenu: () => void;
+  sidebarOpen: boolean;
+  onSidebar: () => void;
+};
 
-export function Navbar({ title, email, menuOpen, onMenu }: Props) {
+export function Navbar({ title, email, menuOpen, onMenu, sidebarOpen, onSidebar }: Props) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -35,6 +42,16 @@ export function Navbar({ title, email, menuOpen, onMenu }: Props) {
         aria-expanded={menuOpen}
         aria-controls="mobile-menu"
         className="-ml-2 inline-flex size-11 items-center justify-center rounded text-ink hover:bg-rule md:hidden"
+      >
+        <MenuIcon />
+      </button>
+      <button
+        type="button"
+        onClick={onSidebar}
+        aria-label={sidebarOpen ? "ย่อเมนู" : "ขยายเมนู"}
+        aria-expanded={sidebarOpen}
+        aria-controls="sidebar"
+        className="-ml-3 hidden size-11 items-center justify-center rounded text-ink hover:bg-rule md:inline-flex"
       >
         <MenuIcon />
       </button>

@@ -15,6 +15,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [failed, setFailed] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
     getCurrentUser()
@@ -44,8 +45,13 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-dvh flex-1">
-      <aside className="hidden w-60 shrink-0 bg-cover md:sticky md:top-0 md:block md:h-dvh">
-        <SidebarContent pathname={pathname} />
+      <aside
+        id="sidebar"
+        className={`hidden shrink-0 overflow-hidden bg-cover transition-[width] duration-200 ease-out motion-reduce:transition-none md:sticky md:top-0 md:block md:h-dvh ${
+          sidebarOpen ? "w-60" : "w-16"
+        }`}
+      >
+        <SidebarContent pathname={pathname} collapsed={!sidebarOpen} />
       </aside>
 
       <div className={`fixed inset-0 z-40 md:hidden ${menuOpen ? "" : "pointer-events-none"}`} inert={!menuOpen}>
@@ -64,7 +70,14 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <Navbar title={title} email={user?.email} menuOpen={menuOpen} onMenu={() => setMenuOpen(true)} />
+        <Navbar
+          title={title}
+          email={user?.email}
+          menuOpen={menuOpen}
+          onMenu={() => setMenuOpen(true)}
+          sidebarOpen={sidebarOpen}
+          onSidebar={() => setSidebarOpen((open) => !open)}
+        />
         <div className="flex flex-1 flex-col">{user ? children : <p className="p-8 text-ink-muted">กำลังโหลด…</p>}</div>
       </div>
     </div>
