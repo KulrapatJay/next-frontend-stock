@@ -7,7 +7,7 @@ import { getAccountValuation } from "@/features/valuation/api";
 import { errorMessage } from "@/lib/errors";
 import { formatDateTime, formatMoney } from "@/lib/format";
 import type { AccountValuation } from "@/types";
-import { AllocationChart } from "./AllocationChart";
+import { AllocationSection } from "./AllocationSection";
 import { Money, Percent, Pnl, PnlPercent, Tile } from "./parts";
 
 // Dashboard: every portfolio valued together (all figures come from GET /valuation)
@@ -89,18 +89,7 @@ export function AccountDashboard() {
               </Tile>
             </div>
 
-            <section aria-labelledby="allocation-heading" className="rounded border border-rule bg-field p-5">
-              <h2 id="allocation-heading" className="text-xl font-bold leading-tight">
-                สัดส่วนหุ้นที่ถือ
-              </h2>
-              {account.allocation.length === 0 ? (
-                <p className="mt-3 text-ink-muted">ตอนนี้ไม่มีหุ้นที่ถืออยู่</p>
-              ) : (
-                <div className="mt-4">
-                  <AllocationChart rows={account.allocation} canDraw={complete} />
-                </div>
-              )}
-            </section>
+            <AllocationSection account={account} />
 
             <section aria-labelledby="portfolios-heading">
               <h2 id="portfolios-heading" className="text-xl font-bold leading-tight">
