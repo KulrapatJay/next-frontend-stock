@@ -414,9 +414,29 @@ export interface paths {
         };
         /**
          * Value a portfolio with delayed prices
-         * @description Prices every stock still held with a delayed reference price: the close of the last bar before 15 minutes ago. It is not a bid or ask price and not a price one could trade at. A price that is missing is null and never "0": coverage says whether every stock still held has a price (complete), some do (partial) or none does (unavailable, which is also the answer when the price provider cannot be reached). Unless coverage is complete, market_value and unrealized_pnl are null and priced_market_value is only the subtotal of the priced stocks; realized_pnl and the holdings never depend on prices. unrealized_pnl = quantity x price - remaining cost, without any selling fee. With PRICE_PROVIDER=demo the prices are sample data and is_demo is true. calculated_at is when the transactions were read. A portfolio that belongs to someone else gets exactly the same 404 as one that does not exist. Needs the session cookie.
+         * @description Prices every stock still held with a delayed reference price: the close of the last bar before 15 minutes ago. It is not a bid or ask price and not a price one could trade at; each quote says so in price_type (delayed_bar_close) and delay_minutes (15), so label the price from those fields. A price that is missing is null and never "0": coverage says whether every stock still held has a price (complete), some do (partial) or none does (unavailable, which is also the answer when the price provider cannot be reached). Unless coverage is complete, market_value, unrealized_pnl and unrealized_pnl_percent are null and priced_market_value is only the subtotal of the priced stocks; realized_pnl, cost_basis and the holdings never depend on prices. unrealized_pnl = quantity x price - remaining cost, without any selling fee. unrealized_pnl_percent = unrealized_pnl / cost_basis x 100 and weight_percent = market_value / market_value of the portfolio x 100; both are in percent ("8.5" is 8.5%), exact and not rounded, and null when they cannot be known (no price, a stock that was sold out for unrealized_pnl_percent, coverage that is not complete for weight_percent): null never means 0%. With PRICE_PROVIDER=demo the prices are sample data and is_demo is true. calculated_at is when the transactions were read. A portfolio that belongs to someone else gets exactly the same 404 as one that does not exist. Needs the session cookie.
          */
         get: operations["getValuation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/valuation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Value every portfolio of the user together
+         * @description The summary for a dashboard: every portfolio of the signed-in user valued with the same delayed reference prices as GET /api/v1/portfolios/{portfolio_id}/valuation and added up. Each stock is priced once per request, however many portfolios hold it. portfolios has one entry per portfolio (newest first, not paged, because the totals count all of them) with the totals of its own valuation and its share of the account; allocation merges the same stock from every portfolio into one row, the largest market_value first, for a chart of what the account holds. The rules for missing prices are those of a single portfolio, over all of them: coverage is complete only when every stock still held in any portfolio has a price; unless it is, market_value, unrealized_pnl and unrealized_pnl_percent are null (never "0") and priced_market_value is only the subtotal of the priced stocks, while cost_basis and realized_pnl never depend on prices. Each portfolio keeps its own coverage, so one portfolio can be complete while the account is partial. Percentages are in percent ("8.5" is 8.5%), exact and not rounded; weight_percent is null unless the coverage of the account is complete. When the price provider cannot be reached the answer is still 200 with coverage unavailable. A user without portfolios or trades gets zeros and empty lists. Only the caller's own portfolios are ever counted. Needs the session cookie.
+         */
+        get: operations["getAccountValuation"];
         put?: never;
         post?: never;
         delete?: never;
@@ -469,6 +489,85 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        "http.AccountPortfolioResponse": {
+            /** @example 200 */
+            cost_basis: string;
+            /**
+             * @example complete
+             * @enum {string}
+             */
+            coverage: "complete" | "partial" | "unavailable";
+            /** @example 300 */
+            market_value: string | null;
+            /** @example Long term */
+            name: string;
+            /** @example 0192f0c1-7a8e-7cc4-9d2b-3f6c1a2b4c5d */
+            portfolio_id: string;
+            /** @example 2 */
+            realized_pnl: string;
+            /** @example 100 */
+            unrealized_pnl: string | null;
+            /** @example 50 */
+            unrealized_pnl_percent: string | null;
+            /** @example 37.5 */
+            weight_percent: string | null;
+        };
+        "http.AccountValuationResponse": {
+            allocation: components["schemas"]["http.AllocationResponse"][];
+            /**
+             * Format: date-time
+             * @example 2026-11-10T15:00:00Z
+             */
+            calculated_at: string;
+            /** @example 610 */
+            cost_basis: string;
+            /**
+             * @example complete
+             * @enum {string}
+             */
+            coverage: "complete" | "partial" | "unavailable";
+            /**
+             * @example USD
+             * @enum {string}
+             */
+            currency: "USD";
+            /** @example 800 */
+            market_value: string | null;
+            /**
+             * @example [
+             *       "MSFT",
+             *       "NVDA"
+             *     ]
+             */
+            missing_symbols: string[];
+            portfolios: components["schemas"]["http.AccountPortfolioResponse"][];
+            /** @example 800 */
+            priced_market_value: string;
+            /** @example 2 */
+            realized_pnl: string;
+            /** @example 190 */
+            unrealized_pnl: string | null;
+            /** @example 31.1475409836065573770491803279 */
+            unrealized_pnl_percent: string | null;
+        };
+        "http.AllocationResponse": {
+            /** @example Apple Inc. */
+            instrument_name: string;
+            /** @example 750 */
+            market_value: string | null;
+            /** @example 5 */
+            quantity: string;
+            quote: components["schemas"]["http.QuoteResponse"] | null;
+            /** @example AAPL */
+            symbol: string;
+            /**
+             * @example no_price
+             * @enum {string|null}
+             */
+            unavailable_reason: "no_price" | "provider_unavailable" | null;
+            /** @example 93.75 */
+            weight_percent: string | null;
+        };
         "http.AuthConfigResponse": {
             /** @example true */
             google_enabled: boolean;
@@ -609,6 +708,10 @@ export interface components {
             unavailable_reason: "no_price" | "provider_unavailable" | null;
             /** @example 13.5 */
             unrealized_pnl: string | null;
+            /** @example 8.9108910891089108910891089109 */
+            unrealized_pnl_percent: string | null;
+            /** @example 100 */
+            weight_percent: string | null;
         };
         "http.QuoteResponse": {
             /**
@@ -623,6 +726,8 @@ export interface components {
              * @enum {string}
              */
             currency: "USD";
+            /** @example 15 */
+            delay_minutes: number;
             /** @example demo */
             feed: string;
             /**
@@ -634,6 +739,11 @@ export interface components {
             is_demo: boolean;
             /** @example 110 */
             price: string;
+            /**
+             * @example delayed_bar_close
+             * @enum {string}
+             */
+            price_type: "delayed_bar_close";
             /**
              * @example unknown
              * @enum {string}
@@ -766,6 +876,8 @@ export interface components {
              * @example 2026-11-04T15:00:00Z
              */
             calculated_at: string;
+            /** @example 151.5 */
+            cost_basis: string;
             /**
              * @example complete
              * @enum {string}
@@ -794,6 +906,8 @@ export interface components {
             realized_pnl: string;
             /** @example 13.5 */
             unrealized_pnl: string | null;
+            /** @example 8.9108910891089108910891089109 */
+            unrealized_pnl_percent: string | null;
         };
         "http.VerifyResetRequest": {
             /** @example 0192f0c1-7a8e-7cc4-9d2b-3f6c1a2b4c5d */
@@ -2755,6 +2869,55 @@ export interface operations {
             };
             /** @description not_found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["http.ErrorResponse"];
+                };
+            };
+            /** @description internal */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["http.ErrorResponse"];
+                };
+            };
+            /** @description dependency_unavailable or server_busy */
+            503: {
+                headers: {
+                    /** @description Seconds to wait; only sent with server_busy, not with dependency_unavailable */
+                    "Retry-After"?: number;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["http.ErrorResponse"];
+                };
+            };
+        };
+    };
+    getAccountValuation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["http.AccountValuationResponse"];
+                };
+            };
+            /** @description unauthenticated */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

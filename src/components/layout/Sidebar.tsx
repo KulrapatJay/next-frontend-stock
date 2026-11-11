@@ -1,10 +1,11 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { CloseIcon, DashboardIcon } from "./icons";
+import { CloseIcon, DashboardIcon, PortfolioIcon } from "./icons";
 
 // Sidebar (passbook cover column)
 export const NAV_ITEMS: { href: string; label: string; icon: ReactNode }[] = [
   { href: "/dashboard", label: "แดชบอร์ด", icon: <DashboardIcon /> },
+  { href: "/portfolios", label: "พอร์ต", icon: <PortfolioIcon /> },
 ];
 
 export function isActive(pathname: string, href: string) {

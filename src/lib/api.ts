@@ -23,13 +23,20 @@ export class ApiError extends Error {
 }
 
 type Method = "GET" | "POST" | "PUT" | "DELETE";
-type ApiOptions = { method?: Method; body?: unknown; headers?: HeadersInit };
+type ApiOptions = {
+  method?: Method;
+  body?: unknown;
+  headers?: HeadersInit;
+  ifMatch?: string;
+  idempotencyKey?: string;
+};
+export type ApiResult<T> = { data: T; etag: string | null };
 
 let csrfToken: Promise<string> | null = null;
 
 function getCsrfToken(): Promise<string> {
-  csrfToken ??= send("GET", "/auth/csrf")
-    .then((data) => (data as { csrf_token: string }).csrf_token)
+  csrfToken ??= send("/auth/csrf", {})
+    .then(({ data }) => (data as { csrf_token: string }).csrf_token)
     .catch((err) => {
       csrfToken = null;
       throw err;
@@ -41,9 +48,11 @@ export function resetCsrfToken() {
   csrfToken = null;
 }
 
-async function send(method: Method, path: string, body?: unknown, headers?: HeadersInit) {
+async function send(path: string, { method = "GET", body, headers, ifMatch, idempotencyKey }: ApiOptions) {
   const h = new Headers(headers);
   if (body !== undefined) h.set("Content-Type", "application/json");
+  if (ifMatch) h.set("If-Match", ifMatch);
+  if (idempotencyKey) h.set("Idempotency-Key", idempotencyKey);
   if (method !== "GET") h.set("X-CSRF-Token", await getCsrfToken());
 
   const res = await fetch(`${BASE}${path}`, {
@@ -55,17 +64,22 @@ async function send(method: Method, path: string, body?: unknown, headers?: Head
 
   const data: unknown = res.status === 204 ? null : await res.json().catch(() => null);
   if (!res.ok) throw new ApiError(res.status, data as ApiErrorBody | null, res.headers);
-  return data;
+  return { data, etag: res.headers.get("ETag") };
 }
 
-export async function api<T>(path: string, { method = "GET", body, headers }: ApiOptions = {}): Promise<T> {
+// Response body plus its ETag (pass the ETag back unchanged as ifMatch on PUT/DELETE)
+export async function apiWithEtag<T>(path: string, options: ApiOptions = {}): Promise<ApiResult<T>> {
   try {
-    return (await send(method, path, body, headers)) as T;
+    return (await send(path, options)) as ApiResult<T>;
   } catch (err) {
-    if (method !== "GET" && err instanceof ApiError && err.code === "csrf_failed") {
+    if ((options.method ?? "GET") !== "GET" && err instanceof ApiError && err.code === "csrf_failed") {
       resetCsrfToken();
-      return (await send(method, path, body, headers)) as T;
+      return (await send(path, options)) as ApiResult<T>;
     }
     throw err;
   }
+}
+
+export async function api<T>(path: string, options: ApiOptions = {}): Promise<T> {
+  return (await apiWithEtag<T>(path, options)).data;
 }

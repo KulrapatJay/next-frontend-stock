@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button } from "@/components/ui/Button";
 import { logout } from "@/features/auth/api";
 import { LogoutIcon, MenuIcon } from "./icons";
 
@@ -68,15 +69,17 @@ export function Navbar({ title, email, menuOpen, onMenu, sidebarOpen, onSidebar 
         <span className="hidden max-w-[28ch] truncate text-sm text-ink-muted sm:inline" title={email}>
           {email}
         </span>
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          size="sm"
           onClick={signOut}
-          disabled={pending}
-          className="inline-flex h-10 items-center gap-2 rounded border border-field-border bg-field px-3 text-sm font-medium text-ink transition-colors hover:border-ink-muted disabled:cursor-not-allowed disabled:opacity-60"
+          pending={pending}
+          pendingLabel="กำลังออก…"
         >
           <LogoutIcon />
-          {pending ? "กำลังออก…" : "ออกจากระบบ"}
-        </button>
+          ออกจากระบบ
+        </Button>
       </div>
     </header>
   );
