@@ -3,13 +3,21 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button } from "@/components/ui/Button";
 import { logout } from "@/features/auth/api";
 import { LogoutIcon, MenuIcon } from "./icons";
 
 // Top bar: page title, account, logout
-type Props = { title: string; email?: string; menuOpen: boolean; onMenu: () => void };
+type Props = {
+  title: string;
+  email?: string;
+  menuOpen: boolean;
+  onMenu: () => void;
+  sidebarOpen: boolean;
+  onSidebar: () => void;
+};
 
-export function Navbar({ title, email, menuOpen, onMenu }: Props) {
+export function Navbar({ title, email, menuOpen, onMenu, sidebarOpen, onSidebar }: Props) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -38,6 +46,16 @@ export function Navbar({ title, email, menuOpen, onMenu }: Props) {
       >
         <MenuIcon />
       </button>
+      <button
+        type="button"
+        onClick={onSidebar}
+        aria-label={sidebarOpen ? "ย่อเมนู" : "ขยายเมนู"}
+        aria-expanded={sidebarOpen}
+        aria-controls="sidebar"
+        className="-ml-3 hidden size-11 items-center justify-center rounded text-ink hover:bg-rule md:inline-flex"
+      >
+        <MenuIcon />
+      </button>
       <Link href="/dashboard" className="font-bold md:hidden">
         Stock Portfolio
       </Link>
@@ -51,15 +69,17 @@ export function Navbar({ title, email, menuOpen, onMenu }: Props) {
         <span className="hidden max-w-[28ch] truncate text-sm text-ink-muted sm:inline" title={email}>
           {email}
         </span>
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          size="sm"
           onClick={signOut}
-          disabled={pending}
-          className="inline-flex h-10 items-center gap-2 rounded border border-field-border bg-field px-3 text-sm font-medium text-ink transition-colors hover:border-ink-muted disabled:cursor-not-allowed disabled:opacity-60"
+          pending={pending}
+          pendingLabel="กำลังออก…"
         >
           <LogoutIcon />
-          {pending ? "กำลังออก…" : "ออกจากระบบ"}
-        </button>
+          ออกจากระบบ
+        </Button>
       </div>
     </header>
   );

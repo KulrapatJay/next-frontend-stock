@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type InputHTMLAttributes, type ReactNode } from "react";
+import { useId, useState, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from "react";
 
 // Form fields
 export const inputClass =
@@ -82,6 +82,42 @@ export function PasswordField({ label, error, hint, id, ...props }: FieldProps) 
           {hint}
         </div>
       )}
+    </div>
+  );
+}
+
+type TextAreaFieldProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  label: string;
+  error?: string | null;
+  hint?: ReactNode;
+};
+
+export function TextAreaField({ label, error, hint, id, ...props }: TextAreaFieldProps) {
+  const autoId = useId();
+  const inputId = id ?? autoId;
+  const describedBy = error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined;
+
+  return (
+    <div className="grid gap-1.5">
+      <label htmlFor={inputId} className="text-sm font-medium">
+        {label}
+      </label>
+      <textarea
+        id={inputId}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={describedBy}
+        className={`${inputClass} h-auto min-h-28 resize-y py-2.5 leading-relaxed`}
+        {...props}
+      />
+      {error ? (
+        <p id={`${inputId}-error`} className="text-sm text-danger">
+          {error}
+        </p>
+      ) : hint ? (
+        <div id={`${inputId}-hint`} className="text-sm text-ink-muted">
+          {hint}
+        </div>
+      ) : null}
     </div>
   );
 }

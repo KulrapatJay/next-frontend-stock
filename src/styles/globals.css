@@ -18,6 +18,14 @@
   --danger-bg: #fdecea;
   --success: #116149;
   --selection: #bfe0e6;
+  --chart-1: #0f4c5c;
+  --chart-2: #c2410c;
+  --chart-3: #6d4c9f;
+  --chart-4: #b7791f;
+  --chart-5: #2b6cb0;
+  --chart-6: #a0365b;
+  --chart-7: #5a6b3a;
+  --chart-8: #6b7280;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -38,6 +46,14 @@
     --danger-bg: #2c1513;
     --success: #6fd3ae;
     --selection: #1f4f5a;
+    --chart-1: #5fb3c4;
+    --chart-2: #f59e6b;
+    --chart-3: #b79ae0;
+    --chart-4: #e3b858;
+    --chart-5: #7ab4ec;
+    --chart-6: #e58aaa;
+    --chart-7: #a9bd7a;
+    --chart-8: #a0a8b3;
   }
 }
 
